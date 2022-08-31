@@ -13,23 +13,23 @@ var doTask = (taskName,x1,x2) => {
 }
 
 
-var counter=0;
+var counter=0;    //global counter, not the best pratice tho
 
 let helperConcurrency = (taskList, concurrencyMax, concurrencyCurrent) => {
-    if (counter < taskList.length && concurrencyCurrent < concurrencyMax) {
+    if (counter < taskList.length && concurrencyCurrent < concurrencyMax) {   //checking the element on the array and the status of the current running processes
         concurrencyCurrent += 1
         counter+=1
         doTask(taskList[counter-1],concurrencyCurrent,concurrencyMax).then((res) => {
             if (res) {
                 concurrencyCurrent -= 1;
             }
-            if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);
+            if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);   // calling the main function after any promise is resolved
         })
-        if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);
+        if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);  // calling the main function after checking if the counters are in the correct state 
     }
 }
 
-let manageConcurrency = (taskList, concurrencyMax, concurrencyCurrent) => {
+let manageConcurrency = (taskList, concurrencyMax, concurrencyCurrent) => { // wrapper function for the recursive solution made
     if(counter >= taskList.length) return;
     else{
         helperConcurrency(taskList, concurrencyMax, concurrencyCurrent);
