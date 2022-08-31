@@ -1,6 +1,5 @@
 
-
-var doTask = (taskName) => {
+var doTask = (taskName,x1,x2) => {
     var begin = Date.now();
     return new Promise(function (resolve, reject) {
         setTimeout(function () {
@@ -9,29 +8,49 @@ var doTask = (taskName) => {
             console.log('\x1b[36m', "[TASK] FINISHED: " + taskName + " in " +
                 timeSpent, '\x1b[0m');
             resolve(true);
-        }, (Math.random() * 200));
+        }, ( Math.random() * 200));
     });
 }
 
 
+var counter=0;
+
+let helperConcurrency = (taskList, concurrencyMax, concurrencyCurrent) => {
+    if (counter < taskList.length && concurrencyCurrent < concurrencyMax) {
+        concurrencyCurrent += 1
+        counter+=1
+        doTask(taskList[counter-1],concurrencyCurrent,concurrencyMax).then((res) => {
+            if (res) {
+                concurrencyCurrent -= 1;
+            }
+            if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);
+        })
+        if (counter < taskList.length && concurrencyCurrent < concurrencyMax) manageConcurrency(taskList, concurrencyMax, concurrencyCurrent);
+    }
+}
+
+let manageConcurrency = (taskList, concurrencyMax, concurrencyCurrent) => {
+    if(counter >= taskList.length) return;
+    else{
+        helperConcurrency(taskList, concurrencyMax, concurrencyCurrent);
+    }
+}
+
 async function init() {
     numberOfTasks = 20;
-    const concurrencyMax = 4 ;
+    const concurrencyMax = 4;
     const taskList = [...Array(numberOfTasks)].map(() =>
-    [...Array(~~(Math.random() * 10 + 3))].map(() =>
-    String.fromCharCode(Math.random() * (123 - 97) + 97)
-    ).join('') )
-    const counter = 0;
-    const concurrencyCurrent = 0
+        [...Array(~~(Math.random() * 10 + 3))].map(() =>
+            String.fromCharCode(Math.random() * (123 - 97) + 97)
+        ).join(''))
+    let tasks_executing_list = []
+    let concurrencyCurrent = 0
     console.log("[init] Concurrency Algo Testing...")
     console.log("[init] Tasks to process: ", taskList.length)
     console.log("[init] Task list: " + taskList)
-    console.log("[init] Maximum Concurrency: ", concurrencyMax,"\n")
+    console.log("[init] Maximum Concurrency: ", concurrencyMax, "\n")
+
+    manageConcurrency(taskList, concurrencyMax, concurrencyCurrent)
 }
-
-// await manageConcurrency(taskList,counter,concurrencyMax,concurrencyCurrent);
-// }
-
-
 
 init()
